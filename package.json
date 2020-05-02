@@ -1,0 +1,14 @@
+{
+  "name": "calcmultilevel",
+  "version": "1.0.0",
+  "description": "Multilevel Calc",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Fabian Quirola",
+  "license": "ISC",
+  "dependencies": {
+    "mocha": "^7.1.2"
+  }
+}
