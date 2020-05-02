@@ -228,3 +228,78 @@ describe('Bonus', function() {
             
       });
   });
+
+  describe('Testricciones de Comision', function() {
+    var t = new multi.Tree();
+      before(function() {
+          //building tree
+          t.add(100,'N5');
+          t.add(120,'N4');
+          t.add(110,'N3-I');
+          t.add(130,'N3-D');
+          t.add(150,'N2');
+          t.add(140,'N1-I');
+          t.add(160,'N1-D');
+          //add commission to N1-D
+          t.addSales(160,12000,1);
+          t.addSales(140,16000);
+          t.addSales(150,18000);
+          t.addSales(130,20000);
+          t.addSales(110,40000);
+          t.addSales(120,20000);
+          t.addSales(100,205000);
+          //add record Sales
+          t.addSalesRecord(160,11000,13000);
+          t.addSalesRecord(140,14000,18000);
+          t.addSalesRecord(150,17000,19000);
+          t.addSalesRecord(130,19000,21000);
+          t.addSalesRecord(110,10000,14000);
+          t.addSalesRecord(120,18000,22000);
+          t.addSalesRecord(100,24000,26000);
+        });
+
+        describe('Se prueba suma de los equipos', function() {
+      
+  
+            it('La suma del equipo de N2 deberia dar 46000', function() {
+            assert.equal(t.teamSales(150), 46000.00);
+            });
+            it('La suma del equipo de N3-D deberia dar 66000', function() {
+              assert.equal(t.teamSales(130), 66000.00);
+            });
+            it('La suma del equipo de N4-D deberia dar 126000', function() {
+              assert.equal(t.teamSales(120), 126000.00);
+            });
+            it('La suma del equipo de N5 deberia dar 331000', function() {
+              assert.equal(t.teamSales(100), 331000.00);
+            });
+            it('La suma del equipo de N3-I deberia dar 12000', function() {
+              assert.equal(t.teamSales(110), 40000.00);
+            });
+            
+            
+          });
+
+        describe('Se prueba suma  promedio de los equipos por trimestre', function() {
+      
+            it('Las comisiones de N1 = 360', function() {
+                assert.equal(t.find(160).commission.N1, 360.00);
+                });
+            it('Las comisiones de N2 = 144', function() {
+                assert.equal(t.find(150).commission.N2, 144.00);
+                });
+            it('Las comisiones de N3 = 14.4', function() {
+                assert.equal(t.find(130).commission.N3, 14.40);
+                });
+            it('Las comisiones de N4 = 9.6', function() {
+                assert.equal(t.find(120).commission.N4, 9.60);
+                });
+            it('Las comisiones de N5 = 7.2 ', function() {
+                assert.equal(t.find(100).commission.N5, 7.20);
+                });
+            
+            
+          });
+
+      
+  });

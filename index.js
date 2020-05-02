@@ -21,6 +21,14 @@ class Node {
       quarterly : 0
       
     }
+    this.commission = { 
+      N1 : 0,
+      N2 : 0,
+      N3 : 0,
+      N4 : 0,
+      N5 : 0
+      
+    }
   }
 }
 
@@ -116,15 +124,15 @@ class Tree {
     return aux
   }
 
-  findRecursive(key, node = this.root) {
-    if (node.key === key) {
+  findRecursive(value, node = this.root) {
+    if (node.value === value) {
       return node
     }
 
-    if (node.key < key) {
-      return this.findRecursive(key, node.right)
-    } else if (node.key > key) {
-      return this.findRecursive(key, node.left)
+    if (node.value < value) {
+      return this.findRecursive(value, node.right)
+    } else if (node.value > value) {
+      return this.findRecursive(value, node.left)
     }
   }
 
@@ -179,6 +187,58 @@ class Tree {
   addSales(key,amount,firstFortnight = 0){
     var node = this.find(key);
     node.sales += amount;
+    var salesTeam= this.teamSalesByNode(node);
+    /* Comisiones */
+
+    var childrens = this.levelRequest(key);
+    var levels = ['N1','N2','N3','N4','N5'];
+    var percent = [0.03,0.012,0.0012,0.0008,0.0006];
+    var i = 0;
+    function sumLevel(node,nodep) {
+      if (!node || i > levels.length - 1) {
+        return
+      }
+      
+      //Restricciones
+      if(i==0){
+        nodep.commission[levels[i]] += (node.sales * percent[i]).toFixed(2); 
+      }
+      if(i==1){
+        //Para el líder N2 (que tiene un nivel a su cargo): venta propia > $5,000, venta del equipo > $35,000
+        if((childrens[i-1]>0) && node.sales > 5000 && salesTeam > 35000){
+          nodep.commission[levels[i]] += (node.sales * percent[i]).toFixed(2); 
+        }
+      }
+      if(i==2){
+        //Para el líder N3 (que tiene dos niveles a su cargo): venta propia > $8,000, venta del equipo > $60,000, numero de lideres n2 en su equipo >= 1
+        if((childrens[i-1]>0) && node.sales > 8000 && salesTeam > 60000){
+          nodep.commission[levels[i]] += (node.sales * percent[i]).toFixed(2); 
+        }
+      }
+      if(i==3){
+        //Para el líder N4 (que tiene tres niveles a su cargo): venta propia > $8,000, venta del equipo > $120,000, numero de lideres N2 en su equipo >= 2, numero de lideres N3 en su equipo >= 1,
+        if((childrens[i-1]>0) && node.sales > 8000 && salesTeam > 120000){
+          nodep.commission[levels[i]] += (node.sales * percent[i]).toFixed(2); 
+        }
+      }
+      if(i==4){
+        //Para el líder N5 (que tiene cuatro niveles a su cargo): venta propia > $6,000, venta del equipo > $240,000, numero de lideres N2 en su equipo >= 3, numero de lideres N3 en su equipo >= 2, numero de lideres N4 en su equipo >= 1,
+        if((childrens[i-1]>0) && node.sales > 6000 && salesTeam > 240000){
+          nodep.commission[levels[i]] += (node.sales * percent[i]).toFixed(2); 
+        }
+      }
+
+      i++;
+      sumLevel(node.right,nodep)
+      sumLevel(node.left,nodep)
+      
+    }
+    
+    sumLevel(node,node);
+  
+    //return 'Commission of '+node.name+' = $'+commission.toFixed(2);
+    
+    //return commission.toFixed(2);
     
     /**
      * Si la persona vende $5,000 recibe $150
@@ -203,6 +263,7 @@ class Tree {
     }
 
 
+
     // Bonus primera Quincena
     if(amount>= 5000 && firstFortnight === 1){
       node.bonus.fortnight += 100;
@@ -216,7 +277,7 @@ class Tree {
       Si el equipo, incluyendo al líder vende $80,000 en el mes recibe $500
         
       */
-    var salesTeam= this.teamSalesByNode(node);
+    
 
      if(salesTeam>= 20000 && salesTeam < 40000){
       node.bonus.leadership += 150;
@@ -291,6 +352,42 @@ Si el equipo, incluyendo al líder vende $100,000 o más por tres meses consecut
     //return 'Commission of '+node.name+' = $'+commission.toFixed(2);
     
     return commission.toFixed(2);
+    
+  }
+
+
+  levelRequest(key){
+
+    var node = this.find(key);
+    //var commission = 0;
+  
+    var count = [0,0,0,0];
+
+    var i = 0;
+ 
+    function sumLevel(node) {
+      if (!node || i > count.length - 1) {
+        return
+      }
+      
+      if(node.right){
+        count[i]++;
+      }
+      if(node.left){
+        count[i]++;
+      }
+      i++;
+      sumLevel(node.right)
+      sumLevel(node.left)
+      
+      
+    }
+    
+    sumLevel(node);
+  
+    //return 'Commission of '+node.name+' = $'+commission.toFixed(2);
+    
+    return count;
     
   }
 
@@ -397,9 +494,74 @@ Si el equipo, incluyendo al líder vende $100,000 o más por tres meses consecut
     
   }
 
+  findLevel(key){
+
+    var node = this.find(key);
+    //var commission = 0;
+  
+    var count = [0,0,0,0];
+
+    var i = 0;
+ 
+    function sumLevel(node) {
+      if (!node || i > count.length - 1) {
+        return
+      }
+      
+      if(node.right){
+        count[i]++;
+      }
+      if(node.left){
+        count[i]++;
+      }
+      i++;
+      sumLevel(node.right)
+      sumLevel(node.left)
+      
+      
+    }
+    
+    sumLevel(node);
+  
+    //return 'Commission of '+node.name+' = $'+commission.toFixed(2);
+    
+    return count;
+    
+  }
+
   
 
 }
+
+var t = new Tree();
+          t.add(100,'N5');
+          t.add(120,'N4');
+          t.add(110,'N3-I');
+          t.add(130,'N3-D');
+          t.add(150,'N2');
+          t.add(140,'N1-I');
+          t.add(160,'N1-D');
+          //add commission to N1-D
+          t.addSales(160,12000,1);
+          t.addSales(140,16000);
+          t.addSales(150,18000);
+          t.addSales(130,20000);
+          t.addSales(110,12000);
+          t.addSales(120,20000);
+          t.addSales(100,25000);
+          //add record Sales
+          t.addSalesRecord(160,11000,13000);
+          t.addSalesRecord(140,14000,18000);
+          t.addSalesRecord(150,17000,19000);
+          t.addSalesRecord(130,19000,21000);
+          t.addSalesRecord(110,10000,14000);
+          t.addSalesRecord(120,18000,22000);
+          t.addSalesRecord(100,24000,26000);
+
+          console.log(t.levelRequest(100));
+          console.log(t.levelRequest(120));
+          console.log(t.levelRequest(130));
+          console.log(t.levelRequest(150));
 
 
 module.exports = {Node,Tree};
